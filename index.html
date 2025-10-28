@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>💖 Happy Birthday Teyeee 💖</title>
+<style>
+  :root{--bg1:#ffd6e7;--bg2:#ffb3c6;--accent:#ff8fab}
+  html,body{height:100%;width:100%;margin:0;padding:0;overflow-x:hidden;-webkit-text-size-adjust:100%}
+  body{
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* center container */
+  .wrap{
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    box-sizing:border-box;
+    padding:20px;
+  }
+
+  /* intro overlay (before login) */
+  .intro {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .intro .bubble{
+    background:rgba(255,255,255,0.14);
+    padding:18px 22px;
+    border-radius:18px;
+    text-align:center;
+    backdrop-filter: blur(6px);
+    box-shadow:0 6px 20px rgba(255,105,180,0.18);
+    color:#fff;
+    font-size:20px;
+    transform:translateY(-10px);
+    opacity:0;
+    animation:introFade 1.2s ease-out 0.2s forwards;
+  }
+  @keyframes introFade{
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* card/login */
+  .card, .login {
+    width:100%;
+    max-width:420px;
+    background: rgba(255,255,255,0.18);
+    padding:20px;
+    border-radius:18px;
+    text-align:center;
+    box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+    backdrop-filter: blur(8px);
+  }
+  input{
+    width:84%;
+    padding:10px 12px;
+    margin:10px auto;
+    display:block;
+    border-radius:10px;
+    border:none;
+    text-align:center;
+    font-size:15px;
+  }
+  button.primary{
+    background:var(--accent);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:16px;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 8px 24px rgba(255,105,180,0.2);
+  }
+  button.secondary{
+    background:transparent;
+    color:#fff;
+    border:2px solid rgba(255,255,255,0.2);
+    padding:8px 14px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+
+  /* birthday content */
+  #birthdayCard { display:none; position:relative; padding-top:30px; padding-bottom:70px; }
+  #greeting{font-size:18px; margin-bottom:8px; color:#fff; text-shadow:0 4px 30px rgba(0,0,0,0.25)}
+  #text{ color:#fff; font-size:15px; line-height:1.5; white-space:pre-line; max-width:92%; margin:0 auto; text-shadow:0 0 8px rgba(0,0,0,0.18)}
+
+  /* photos area */
+  .photos-area{position:fixed; inset:0; pointer-events:none; z-index:50}
+  .photo{
+    position:absolute;
+    width:120px;
+    max-width:28%;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.18);
+    transform-origin:center top;
+    opacity:0;
+    transform: translateY(-160px) scale(0.92) rotate(0deg);
+    transition: transform 700ms cubic-bezier(.2,.9,.25,1), opacity 600ms ease;
+  }
+  .photo img{width:100%; height:auto; display:block; border-radius:12px}
+  .photo.show{opacity:1; transform: translateY(0) scale(1) rotate(var(--rot));}
+
+  /* music play button (for mobile) */
+  #playBtn{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:120;
+    display:none;
+    padding:10px 18px;
+    border-radius:24px;
+    border:none;
+    font-weight:700;
+  }
+
+  /* small screens */
+  @media(max-width:768px){
+    .photo{ width:84px; max-width:36%; }
+    .card, .login { max-width:95%; padding:16px; }
+    #greeting{ font-size:16px; }
+    #text{ font-size:14px; }
+    .intro .bubble{ font-size:18px; padding:14px 16px; border-radius:14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- intro message that shows gently before login -->
+  <div class="intro" id="intro">
+    <div class="bubble">Selamat Ulang Tahun Teyeee 💖<br><small style="opacity:0.9">Ketuk "Masuk & Buka Kartu" untuk membuka kejutan</small></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="login card" id="loginForm">
+    <h2 style="margin:6px 0;color:white">💌 Login Spesial untuk Teyeee 💌</h2>
+    <input type="text" id="name" placeholder="Nama (teyeee)" autocomplete="off" />
+    <input type="text" id="birth" placeholder="Tanggal Lahir (27-10-2007)" autocomplete="off" />
+    <input type="password" id="pass" placeholder="Kata Sandi (27-10-2007)" />
+    <button class="primary" id="openBtn">Masuk & Buka Kartu 🎁</button>
+  </div>
+
+  <!-- BIRTHDAY CARD (hidden until login) -->
+  <div id="birthdayCard" class="card">
+    <div id="greeting">🎂💖 Happy 18th Birthday, Sayang! 💖🎂</div>
+    <p id="text"></p>
+  </div>
+</div>
+
+<!-- floating photos layer -->
+<div class="photos-area" id="photosArea" aria-hidden="true"></div>
+
+<!-- audio (put sedia_aku.mp3 in same folder) -->
+<audio id="bgMusic" src="sedia.aku.mp3" preload="auto" playsinline></audio>
+
+<!-- mobile play button if autoplay blocked -->
+<button id="playBtn" class="primary">🎵 Tekan untuk putar lagu</button>
+
+<script>
+/* ====== CONFIG ====== */
+const MESSAGE = `Heii Teyeee!! 🎉
+Selamat ulang tahun ke-18 yaa cewek paling nyenengin di dunia 😆💖
+
+Hari ini bukan cuma tentang bertambahnya usia kamu, tapi tentang betapa beruntungnya aku bisa kenal, deket, dan punya kamu di hidup aku 🫶
+
+Kamu tuh kayak WiFi — makin jauh makin lemah sinyalnya, makanya jangan jauh-jauh dari aku ya 😜💞
+
+Semoga umur 18 ini jadi awal dari semua hal keren yang kamu mau. 
+Semoga makin glowing, makin kuat, makin disayang, dan... makin sayang juga sama akuu 😳💗
+
+Happy birthday, Teyeee. Kamu versi terbaik dari semua yang pernah aku temuin 💐`;
+
+const PHOTOS = [
+  "aryo1.jpg","aryo2.jpg","aryo3.jpg","aryo4.jpg",
+  "aryo5.jpg","aryo6.jpg","aryo7.jpg","aryo8.jpg",
+  "aryo9.jpg","aryo15.jpg","aryo11.jpg","aryo12.jpg"
+]; // update names if needed
+
+const AUDIO_START_SEC = 50; // start position in seconds (adjust)
+const AUDIO_END_SEC = 80;   // stop position
+/* ===================== */
+
+const loginForm = document.getElementById('loginForm');
+const birthdayCard = document.getElementById('birthdayCard');
+const textEl = document.getElementById('text');
+const photosArea = document.getElementById('photosArea');
+const bgMusic = document.getElementById('bgMusic');
+const playBtn = document.getElementById('playBtn');
+const intro = document.getElementById('intro');
+const openBtn = document.getElementById('openBtn');
+
+let typed = false;
+
+/* small helper: try to play audio but handle autoplay block */
+function tryPlayAudio() {
+  bgMusic.currentTime = AUDIO_START_SEC;
+  const p = bgMusic.play();
+  if (p !== undefined) {
+    p.catch(() => {
+      // autoplay blocked -> show play button
+      playBtn.style.display = 'block';
+    });
+  }
+}
+
+/* stop at end */
+function startStopper() {
+  const interval = setInterval(()=>{
+    if (!bgMusic.paused && bgMusic.currentTime >= AUDIO_END_SEC) {
+      bgMusic.pause();
+      clearInterval(interval);
+    }
+  }, 300);
+}
+
+/* typewriter for message */
+function typeText() {
+  if (typed) return;
+  typed = true;
+  let i = 0, speed = 30;
+  textEl.textContent = "";
+  function step(){
+    if (i < MESSAGE.length) {
+      textEl.textContent += MESSAGE.charAt(i++);
+      setTimeout(step, speed);
+    }
+  }
+  step();
+}
+
+/* photo drop: create elements and animate one-by-one */
+function dropPhotos() {
+  // clear any existing
+  photosArea.innerHTML = '';
+
+  // compute vertical start offset and spacing
+  const baseTop = 28; // px from top for first
+  const spacing = Math.min(window.innerHeight * 0.06, 68);
+
+  PHOTOS.forEach((src, index) => {
+    setTimeout(()=> {
+      if (!src) return;
+      const el = document.createElement('div');
+      el.className = 'photo';
+      // alternating left/right positions with small random offset
+      const isLeft = index % 2 === 0;
+      const left = isLeft ? (10 + Math.random()*8) : null;
+      const right = !isLeft ? (10 + Math.random()*8) : null;
+      el.style.top = (baseTop + index * spacing) + 'px';
+      if (left !== null) el.style.left = left + '%';
+      if (right !== null) el.style.right = right + '%';
+      // small random rotation
+      const rot = (isLeft ? -6 : 6) + (Math.random()*8 - 4);
+      el.style.setProperty('--rot', rot + 'deg');
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = 'foto ' + (index+1);
+      // if image missing, hide silently
+      img.onerror = () => { el.remove(); };
+      el.appendChild(img);
+      photosArea.appendChild(el);
+      // force reflow then show
+      requestAnimationFrame(()=> {
+        el.classList.add('show');
+      });
+    }, index * 520);
+  });
+}
+
+/* show card: hide login, show card and photos & text */
+function openCard() {
+  // hide intro quickly
+  intro.style.display = 'none';
+  loginForm.style.display = 'none';
+  birthdayCard.style.display = 'block';
+  dropPhotos();
+  typeText();
+  // attempt audio play
+  tryPlayAudio();
+  startStopper();
+  // when audio started/allowed, hide playBtn
+  bgMusic.addEventListener('play', ()=> playBtn.style.display = 'none');
+}
+
+/* playBtn handler (for iPhone/Safari) */
+playBtn.addEventListener('click', ()=>{
+  try {
+    bgMusic.currentTime = AUDIO_START_SEC;
+    bgMusic.play();
+    playBtn.style.display = 'none';
+    startStopper();
+  } catch(e){
+    console.warn('play error', e);
+  }
+});
+
+/* open button click: validate and open */
+openBtn.addEventListener('click', ()=>{
+  const name = document.getElementById('name').value.trim().toLowerCase();
+  const birth = document.getElementById('birth').value.trim();
+  const pass = document.getElementById('pass').value.trim();
+  if (name === 'teyeee' && birth === '27-10-2007' && pass === '27-10-2007') {
+    openCard();
+  } else {
+    alert('Ups 😜 salah dikit tuh, coba lagi yaa!');
+  }
+});
+
+/* Friendly extra: first user tap anywhere resumes audio context in many browsers */
+function resumeOnFirstInteraction() {
+  function resume() {
+    if (bgMusic.paused) {
+      // attempt to resume (this may still require user gesture)
+      tryPlayAudio();
+    }
+    // remove listeners after first interaction
+    document.removeEventListener('touchstart', resume);
+    document.removeEventListener('click', resume);
+  }
+  document.addEventListener('touchstart', resume, {passive:true});
+  document.addEventListener('click', resume, {passive:true});
+}
+resumeOnFirstInteraction();
+
+/* Ensure layout reflow on rotate/resize */
+window.addEventListener('orientationchange', ()=> {
+  // re-position or re-run photos if needed
+  // small timeout to let orientation settle
+  setTimeout(()=> {
+    // if birthday opened, reposition photos
+    if (birthdayCard.style.display === 'block') {
+      dropPhotos();
+    }
+  }, 350);
+});
+</script>
+</body>
+</html>
